@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import { Link } from "react-router-dom";
-import { auth } from "../firebase";
+import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 
 function PaymentModal({ onClose, onUpgrade }) {

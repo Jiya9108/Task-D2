@@ -56,56 +56,65 @@ function Register() {
   };
 
   return (
-    <div className="page">
-      <h1>Create an Account</h1>
-
-      <form onSubmit={handleRegister}>
-        <div>
-          <label htmlFor="fullName">Full Name</label>
-          <input
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Enter your full name"
-            required
-          />
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="page-heading">
+          <p className="eyebrow">DEV@DEAKIN COMMUNITY</p>
+          <h1>Create an Account</h1>
+          <p className="muted">Join the community to explore and share posts.</p>
         </div>
 
-        <div>
-          <label htmlFor="registerEmail">Email</label>
-          <input
-            id="registerEmail"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-          />
+        <form onSubmit={handleRegister}>
+          <label htmlFor="fullName">
+            Full Name
+            <input
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
+              autoComplete="name"
+              required
+            />
+          </label>
+
+          <label htmlFor="registerEmail">
+            Email
+            <input
+              id="registerEmail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              autoComplete="email"
+              required
+            />
+          </label>
+
+          <label htmlFor="registerPassword">
+            Password
+            <input
+              id="registerPassword"
+              type="password"
+              minLength="6"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              autoComplete="new-password"
+              required
+            />
+          </label>
+
+          {error && <div className="alert alert-error" role="alert">{error}</div>}
+
+          <button className="button button-primary button-full" type="submit" disabled={busy}>
+            {busy ? "Creating account..." : "Register"}
+          </button>
+        </form>
+
+        <div className="auth-bottom">
+          <p>Already have an account? <Link to="/login">Login</Link></p>
         </div>
-
-        <div>
-          <label htmlFor="registerPassword">Password</label>
-          <input
-            id="registerPassword"
-            type="password"
-            minLength="6"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="At least 6 characters"
-            required
-          />
-        </div>
-
-        {error && <p role="alert">{error}</p>}
-
-        <button type="submit" disabled={busy}>
-          {busy ? "Creating account..." : "Register"}
-        </button>
-      </form>
-
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+      </div>
     </div>
   );
 }
