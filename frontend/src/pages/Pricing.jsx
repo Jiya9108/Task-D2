@@ -68,7 +68,6 @@ function PaymentModal({ onClose, onUpgrade }) {
       >
         <div className="modal-heading">
           <div>
-            <p className="section-label">SECURE CHECKOUT DEMO</p>
             <h2 id="payment-title">Upgrade to Paid</h2>
           </div>
 
@@ -159,10 +158,6 @@ function PaymentModal({ onClose, onUpgrade }) {
             {busy ? "Updating plan..." : "Confirm Upgrade"}
           </button>
 
-          <p className="payment-disclaimer">
-            Academic demonstration only. Use dummy payment details.
-            No real payment is processed. Card details are not stored.
-          </p>
         </form>
       </section>
     </div>
