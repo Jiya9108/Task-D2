@@ -437,20 +437,6 @@ function Newsletter() {
   );
 }
 
-/* =========================================================
-   HOME PAGE
-   Sequence:
-   Hero
-   Intro
-   About
-   Work
-   Articles
-   Tutorials
-   Gallery
-   Contact
-   Newsletter
-========================================================= */
-
 function Home() {
   return (
     <div className="app">

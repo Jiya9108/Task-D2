@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -10,7 +9,6 @@ const API_URL = (
 export default function Post() {
   const { user, plan } = useAuth();
   const navigate = useNavigate();
-
   const isPaidMember = plan?.toLowerCase() === "paid";
 
   const [postType, setPostType] = useState("question");
@@ -275,3 +273,7 @@ export default function Post() {
     </section>
   );
 }
+
+
+
+

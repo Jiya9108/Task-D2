@@ -126,12 +126,7 @@ function Login() {
           onClick={handleGoogleLogin}
           disabled={busy}
         >
-          <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            alt=""
-            width="18"
-            height="18"
-          />
+          
           {busy ? "Please wait..." : "Sign in with Google"}
         </button>
 

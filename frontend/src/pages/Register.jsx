@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
+import {createUserWithEmailAndPassword,updateProfile,} from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 
@@ -120,3 +117,4 @@ function Register() {
 }
 
 export default Register;
+
