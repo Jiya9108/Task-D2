@@ -11,13 +11,16 @@ export default function BrowsePosts() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [posts, setPosts] = useState([]);
+
   const [search, setSearch] = useState(
     searchParams.get("search") || ""
   );
+
   const [appliedSearch, setAppliedSearch] = useState(
     searchParams.get("search") || ""
   );
-  const [visibility, setVisibility] = useState("All");
+
+  const [visibility, setVisibility] = useState("Free");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,11 +39,15 @@ export default function BrowsePosts() {
           params.set("search", appliedSearch.trim());
         }
 
-        if (visibility !== "All") {
+        if (!user) {
+          params.set("plan", "Free");
+        } else if (visibility !== "All") {
           params.set("plan", visibility);
         }
 
-        const token = user ? await user.getIdToken() : null;
+        const token = user
+          ? await user.getIdToken()
+          : null;
 
         const response = await fetch(
           `${API_URL}/api/posts?${params.toString()}`,
@@ -54,10 +61,14 @@ export default function BrowsePosts() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Unable to load posts.");
+          throw new Error(
+            data.message || "Unable to load posts."
+          );
         }
 
-        setPosts(Array.isArray(data.posts) ? data.posts : []);
+        setPosts(
+          Array.isArray(data.posts) ? data.posts : []
+        );
 
       } catch (err) {
         setError(
@@ -71,6 +82,7 @@ export default function BrowsePosts() {
     };
 
     fetchPosts();
+
   }, [user, appliedSearch, visibility]);
 
   const handleSearch = (e) => {
@@ -89,7 +101,9 @@ export default function BrowsePosts() {
     <section className="page-wrap browse-page">
 
       <div className="browse-heading">
-        <p className="eyebrow">DEV@DEAKIN COMMUNITY</p>
+        <p className="eyebrow">
+          DEV@DEAKIN COMMUNITY
+        </p>
 
         <h1>Browse Posts</h1>
 
@@ -100,7 +114,10 @@ export default function BrowsePosts() {
 
       <div className="browse-toolbar">
 
-        <form className="browse-search" onSubmit={handleSearch}>
+        <form
+          className="browse-search"
+          onSubmit={handleSearch}
+        >
           <input
             type="search"
             placeholder="Search posts..."
@@ -108,59 +125,101 @@ export default function BrowsePosts() {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          <button type="submit" className="button button-primary">
+          <button
+            type="submit"
+            className="button button-primary"
+          >
             Search
           </button>
         </form>
 
+
         <div className="visibility-filter">
+
           <label htmlFor="postVisibility">
             Post Visibility
           </label>
 
           <select
             id="postVisibility"
-            value={visibility}
+            value={!user ? "Free" : visibility}
             onChange={(e) => setVisibility(e.target.value)}
           >
-            <option value="All">All Posts</option>
-            <option value="Free">Free Posts</option>
-            <option value="Paid">Paid Posts</option>
+
+            {!user ? (
+              <option value="Free">
+                Free Posts
+              </option>
+            ) : (
+
+              <>
+                <option value="All">
+                  All Posts
+                </option>
+
+                <option value="Free">
+                  Free Posts
+                </option>
+
+                <option value="Paid">
+                  Paid Posts
+                </option>
+              </>
+
+            )}
+
           </select>
+
         </div>
 
       </div>
 
-      {visibility === "Paid" && !isPaidMember && (
+
+
+      {user && visibility === "Paid" && !isPaidMember && (
         <p className="filter-notice">
           Paid posts are available to Paid members only.
         </p>
       )}
 
+
       {loading && (
-        <p className="muted loading-message">Loading posts...</p>
+        <p className="muted loading-message">
+          Loading posts...
+        </p>
       )}
 
       {error && (
-        <div className="alert alert-error">{error}</div>
+        <div className="alert alert-error">
+          {error}
+        </div>
       )}
 
       {!loading && !error && posts.length === 0 && (
         <div className="empty-posts">
+
           <h3>No posts found</h3>
+
           <p className="muted">
             Try another search or visibility filter.
           </p>
+
         </div>
       )}
 
       {!loading && !error && posts.length > 0 && (
+
         <div className="posts-grid">
 
           {posts.map((post) => (
-            <article className="post-card" key={post.id}>
+
+            <article
+              className="post-card"
+              key={post.id}
+            >
 
               <div className="post-card-top">
+
                 <span className="post-type-label">
                   {post.postType || "Post"}
                 </span>
@@ -174,11 +233,14 @@ export default function BrowsePosts() {
                 >
                   {post.plan || "Free"}
                 </span>
+
               </div>
+
 
               <h2 className="post-card-title">
                 {post.title}
               </h2>
+
 
               <p className="post-description">
                 {post.postType === "article"
@@ -187,29 +249,41 @@ export default function BrowsePosts() {
               </p>
 
               {post.tags?.length > 0 && (
+
                 <div className="post-tags">
+
                   {post.tags.map((tag, index) => (
-                    <span key={index}>#{tag}</span>
+                    <span key={index}>
+                      #{tag}
+                    </span>
                   ))}
+
                 </div>
+
               )}
 
               <div className="post-card-footer">
+
                 <span>
                   By {post.authorName || "Anonymous"}
                 </span>
 
                 <span>
                   {post.createdAt
-                    ? new Date(post.createdAt).toLocaleDateString()
+                    ? new Date(
+                        post.createdAt
+                      ).toLocaleDateString()
                     : ""}
                 </span>
+
               </div>
 
             </article>
+
           ))}
 
         </div>
+
       )}
 
     </section>
