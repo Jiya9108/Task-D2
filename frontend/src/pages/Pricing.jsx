@@ -100,7 +100,7 @@ function PaymentModal({ onClose, onUpgrade }) {
           </label>
 
           <label>
-            Demo card number
+            Card number
             <input
               value={cardNumber}
               onChange={(e) =>
