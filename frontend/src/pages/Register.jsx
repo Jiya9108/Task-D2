@@ -1,5 +1,8 @@
 import { useState } from "react";
-import {createUserWithEmailAndPassword,updateProfile,} from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 
@@ -7,6 +10,7 @@ function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -16,13 +20,23 @@ function Register() {
     e.preventDefault();
     setError("");
 
-    if (!fullName.trim() || !email.trim() || !password) {
+    if (
+      !fullName.trim() ||
+      !email.trim() ||
+      !password ||
+      !confirmPassword
+    ) {
       setError("Please fill in all fields.");
       return;
     }
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
@@ -58,7 +72,9 @@ function Register() {
         <div className="page-heading">
           <p className="eyebrow">DEV@DEAKIN COMMUNITY</p>
           <h1>Create an Account</h1>
-          <p className="muted">Join the community to explore and share posts.</p>
+          <p className="muted">
+            Join the community to explore and share posts.
+          </p>
         </div>
 
         <form onSubmit={handleRegister}>
@@ -66,6 +82,7 @@ function Register() {
             Full Name
             <input
               id="fullName"
+              type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your full name"
@@ -101,15 +118,38 @@ function Register() {
             />
           </label>
 
-          {error && <div className="alert alert-error" role="alert">{error}</div>}
+          <label htmlFor="confirmPassword">
+            Confirm Password
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter your password"
+              autoComplete="new-password"
+              required
+            />
+          </label>
 
-          <button className="button button-primary button-full" type="submit" disabled={busy}>
+          {error && (
+            <div className="alert alert-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            className="button button-primary button-full"
+            type="submit"
+            disabled={busy}
+          >
             {busy ? "Creating account..." : "Register"}
           </button>
         </form>
 
         <div className="auth-bottom">
-          <p>Already have an account? <Link to="/login">Login</Link></p>
+          <p>
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
         </div>
       </div>
     </div>
@@ -117,4 +157,3 @@ function Register() {
 }
 
 export default Register;
-
