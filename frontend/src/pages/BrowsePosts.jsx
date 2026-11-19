@@ -20,14 +20,28 @@ export default function BrowsePosts() {
     searchParams.get("search") || ""
   );
 
-  const [visibility, setVisibility] = useState("Free");
+  const [visibility, setVisibility] = useState("All");
+
+  const [hiddenPosts, setHiddenPosts] = useState([]);
+  const [expandedPosts, setExpandedPosts] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const isPaidMember = plan?.toLowerCase() === "paid";
 
+  // Keep search input synchronized with browser URL changes
   useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+
+    setSearch(urlSearch);
+    setAppliedSearch(urlSearch);
+  }, [searchParams]);
+
+  // Fetch posts whenever search or visibility changes
+  useEffect(() => {
+    let cancelled = false;
+
     const fetchPosts = async () => {
       try {
         setLoading(true);
@@ -66,36 +80,87 @@ export default function BrowsePosts() {
           );
         }
 
-        setPosts(
-          Array.isArray(data.posts) ? data.posts : []
-        );
+        if (!cancelled) {
+          setPosts(
+            Array.isArray(data.posts) ? data.posts : []
+          );
+        }
 
       } catch (err) {
-        setError(
-          err.message === "Failed to fetch"
-            ? "Cannot connect to the server. Check whether your backend is running."
-            : err.message
-        );
+        if (!cancelled) {
+          setError(
+            err.message === "Failed to fetch"
+              ? "Cannot connect to the server. Check whether your backend is running."
+              : err.message
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchPosts();
 
+    return () => {
+      cancelled = true;
+    };
   }, [user, appliedSearch, visibility]);
 
+  // Search posts
   const handleSearch = (e) => {
     e.preventDefault();
 
-    setAppliedSearch(search.trim());
+    const value = search.trim();
 
-    if (search.trim()) {
-      setSearchParams({ search: search.trim() });
+    setAppliedSearch(value);
+
+    if (value) {
+      setSearchParams({ search: value });
     } else {
       setSearchParams({});
     }
   };
+
+  // Hide an individual post
+  const handleHide = (postId) => {
+    setHiddenPosts((previous) =>
+      previous.includes(postId)
+        ? previous
+        : [...previous, postId]
+    );
+
+    setExpandedPosts((previous) =>
+      previous.filter((id) => id !== postId)
+    );
+  };
+
+  // Expand or collapse a post
+  const handleExpand = (postId) => {
+    setExpandedPosts((previous) =>
+      previous.includes(postId)
+        ? previous.filter((id) => id !== postId)
+        : [...previous, postId]
+    );
+  };
+
+  // Reset all controls and restore hidden posts
+  const handleReset = () => {
+    setHiddenPosts([]);
+    setExpandedPosts([]);
+
+    setSearch("");
+    setAppliedSearch("");
+    setVisibility("All");
+
+    setSearchParams({});
+  };
+
+  // Filter out hidden posts
+  const visiblePosts = posts.filter(
+    (post) => !hiddenPosts.includes(post.id)
+  );
 
   return (
     <section className="page-wrap browse-page">
@@ -133,7 +198,6 @@ export default function BrowsePosts() {
           </button>
         </form>
 
-
         <div className="visibility-filter">
 
           <label htmlFor="postVisibility">
@@ -145,43 +209,38 @@ export default function BrowsePosts() {
             value={!user ? "Free" : visibility}
             onChange={(e) => setVisibility(e.target.value)}
           >
-
             {!user ? (
-              <option value="Free">
-                Free Posts
-              </option>
+              <option value="Free">Free Posts</option>
             ) : (
-
               <>
-                <option value="All">
-                  All Posts
-                </option>
-
-                <option value="Free">
-                  Free Posts
-                </option>
-
-                <option value="Paid">
-                  Paid Posts
-                </option>
+                <option value="All">All Posts</option>
+                <option value="Free">Free Posts</option>
+                <option value="Paid">Paid Posts</option>
               </>
-
             )}
-
           </select>
 
         </div>
 
       </div>
 
+      <div className="browse-actions">
 
+        <button
+          type="button"
+          className="button button-secondary"
+          onClick={handleReset}
+        >
+          Reset
+        </button>
+
+      </div>
 
       {user && visibility === "Paid" && !isPaidMember && (
         <p className="filter-notice">
           Paid posts are available to Paid members only.
         </p>
       )}
-
 
       {loading && (
         <p className="muted loading-message">
@@ -195,92 +254,132 @@ export default function BrowsePosts() {
         </div>
       )}
 
-      {!loading && !error && posts.length === 0 && (
+      {!loading && !error && visiblePosts.length === 0 && (
         <div className="empty-posts">
-
-          <h3>No posts found</h3>
+          <h3>
+            {posts.length > 0
+              ? "All posts are hidden"
+              : "No posts found"}
+          </h3>
 
           <p className="muted">
-            Try another search or visibility filter.
+            {posts.length > 0
+              ? "Click Reset to show all posts again."
+              : "Try another search or visibility filter."}
           </p>
-
         </div>
       )}
 
-      {!loading && !error && posts.length > 0 && (
+      {!loading && !error && visiblePosts.length > 0 && (
 
         <div className="posts-grid">
 
-          {posts.map((post) => (
+          {visiblePosts.map((post) => {
 
-            <article
-              className="post-card"
-              key={post.id}
-            >
+            const isExpanded = expandedPosts.includes(post.id);
 
-              <div className="post-card-top">
+            const isArticle =
+              post.postType?.toLowerCase() === "article";
 
-                <span className="post-type-label">
-                  {post.postType || "Post"}
-                </span>
+            const postContent = isArticle
+              ? post.articleText || post.abstract
+              : post.description || "";
 
-                <span
-                  className={`post-visibility ${
-                    post.plan?.toLowerCase() === "paid"
-                      ? "paid"
-                      : "free"
-                  }`}
-                >
-                  {post.plan || "Free"}
-                </span>
+            const previewContent = isArticle
+              ? post.abstract || post.articleText
+              : post.description || "";
 
-              </div>
+            return (
 
+              <article
+                className="post-card"
+                key={post.id}
+              >
 
-              <h2 className="post-card-title">
-                {post.title}
-              </h2>
+                <div className="post-card-top">
 
+                  <span className="post-type-label">
+                    {post.postType || "Post"}
+                  </span>
 
-              <p className="post-description">
-                {post.postType === "article"
-                  ? post.abstract
-                  : post.description}
-              </p>
-
-              {post.tags?.length > 0 && (
-
-                <div className="post-tags">
-
-                  {post.tags.map((tag, index) => (
-                    <span key={index}>
-                      #{tag}
-                    </span>
-                  ))}
+                  <span
+                    className={`post-visibility ${
+                      post.plan?.toLowerCase() === "paid"
+                        ? "paid"
+                        : "free"
+                    }`}
+                  >
+                    {post.plan || "Free"}
+                  </span>
 
                 </div>
 
-              )}
+                <h2 className="post-card-title">
+                  {post.title}
+                </h2>
 
-              <div className="post-card-footer">
+                <p
+                  className={`post-description ${
+                    isExpanded ? "is-expanded" : ""
+                  }`}
+                >
+                  {isExpanded
+                    ? postContent
+                    : previewContent}
+                </p>
 
-                <span>
-                  By {post.authorName || "Anonymous"}
-                </span>
+                {post.tags?.length > 0 && (
 
-                <span>
-                  {post.createdAt
-                    ? new Date(
-                        post.createdAt
-                      ).toLocaleDateString()
-                    : ""}
-                </span>
+                  <div className="post-tags">
+                    {post.tags.map((tag, index) => (
+                      <span key={index}>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
 
-              </div>
+                )}
 
-            </article>
+                <div className="post-card-footer">
 
-          ))}
+                  <span>
+                    By {post.authorName || "Anonymous"}
+                  </span>
+
+                  <span>
+                    {post.createdAt
+                      ? new Date(
+                          post.createdAt
+                        ).toLocaleDateString()
+                      : ""}
+                  </span>
+
+                </div>
+
+                <div className="post-card-actions">
+
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={() => handleExpand(post.id)}
+                  >
+                    {isExpanded ? "Collapse" : "Expand"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={() => handleHide(post.id)}
+                  >
+                    Hide
+                  </button>
+
+                </div>
+
+              </article>
+
+            );
+          })}
 
         </div>
 

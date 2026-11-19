@@ -3357,3 +3357,114 @@ button { cursor: pointer; }
   max-width: 620px;
   margin: 0 auto;
 }
+
+
+/* =========================================================
+   D2 RESUBMISSION — BROWSE POSTS HIDE, RESET AND EXPAND
+   Added at the end so these rules take priority over older
+   Browse Posts styles without changing the rest of the site.
+========================================================= */
+
+.browse-page .browse-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin: -8px 0 20px;
+}
+
+.browse-page .button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 9px 16px;
+  border: 1px solid #cbd9dc;
+  border-radius: 5px;
+  background: #f1f5f6;
+  color: #263746;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.browse-page .button-secondary:hover {
+  border-color: #078b91;
+  background: #eff8f8;
+  color: #056f74;
+}
+
+.browse-page .button-secondary:focus-visible {
+  outline: 3px solid rgba(7, 139, 145, 0.2);
+  outline-offset: 2px;
+}
+
+.browse-page .post-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #edf0f1;
+}
+
+.browse-page .post-card-actions .button {
+  min-height: 36px;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+
+.browse-page .post-description {
+  color: #607180;
+  font-size: 14px;
+  line-height: 1.75;
+  margin: 10px 0 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.browse-page .post-description.is-expanded {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+.browse-page .empty-posts {
+  margin-top: 18px;
+  padding: 48px 22px;
+  border: 1px dashed #cbd9dc;
+  border-radius: 9px;
+  background: #fbfdfd;
+  text-align: center;
+}
+
+.browse-page .empty-posts h3 {
+  margin-bottom: 8px;
+  color: #17202a;
+  font-size: 20px;
+}
+
+.browse-page .empty-posts p {
+  color: #647580;
+  font-size: 14px;
+}
+
+@media (max-width: 650px) {
+  .browse-page .browse-actions {
+    margin-top: -10px;
+    margin-bottom: 18px;
+  }
+
+  .browse-page .post-card-actions {
+    justify-content: flex-start;
+  }
+
+  .browse-page .post-card-actions .button {
+    flex: 1;
+  }
+}
